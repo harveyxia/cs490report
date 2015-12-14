@@ -47,7 +47,7 @@ Protea aims to capture the diversity of existing heterogeneous storage system de
 
 Thus Protea consists of a library of \textit{operator nodes} and an \textit{interface}. Operators are abstractions over the common functional idioms mentioned above. Protea implements them so they can be reused and defines an interface by which they can be composed together in a well-defined manner.
 
-Section 2 describes the abstraction of the ProtoTree. Section 3 describes a candidate design of the ProtoTree.
+Section 2 describes the abstraction of the ProtoTree. Section 3 describes a candidate design of the ProtoTree. Section 4 describes some example systems implemented in Protea. Section 5 describes related work. Section 6 describes future directions for Protea.
 
 \begin{table}
 \begin{tabular}{ l | l | l | l }
@@ -229,12 +229,6 @@ Corfu\cite{corfu} presents a more concrete example of a distributed storage syst
 
 A custom API can be constructed on top of two ProtoTrees, a simpleMapper and a logNode as shown in Listing 5 and Listing 6. The simpleMapper maintains metadata, mapping each address to one of three states: "written", "unwritten", and "trimmed". The API exposes \texttt{write(address, value)}, \texttt{read(address)}, and \texttt{trim(address)} methods. To serve a write, the simpleMapper is consulted to determine the state of the address. Either an error is returned or the write is performed on the logNode and the simpleMapper updated. Read and trim operations are performed in a similar manner, throwing errors when necessary.
 
-\section{Future Work}
-
-Protea offers a useful framework not only for thinking about and implementing storage systems but also for automated tree discovery. Due to the modular design of ProtoTrees and the simplicity of implementing new designs, one could use an evolutionary algorithm to generate trees that demonstrate desirable characteristics. For example, if a user wants a ProtoTree design that handles read-heavy workloads and utilizes an HDD and SSD, they could iterate through generations of random tree candidates and select for those that demonstrate the best read throughput. This inverts the normal process of storage system design, in which arduous human-driven design comes first and then evaluation. Instead, such an automated discovery framework opens up the possibility of machine-driven design and evaluation, where the human only needs to specify their goals.
-
-Another direction for this work is to implement Protea on an FPGA so that, by ditching an operating system entirely, the system can benefit from significant speedup, pushing the speed bottleneck to network and disk I/O.
-
 \section{Related Work}
 
 Griffin and Corfu are two fitting candidates for implementation via Protea. They are discussed in section 4.
@@ -244,6 +238,14 @@ The Arrakis\cite{Arrakis} operating system gives applications direct access to v
 MosaStore\cite{MosaStore} presents the idea of aggregating node-local resources (i.e. storage space, IO channels, memory, etc.) across a distributed network and utilizing them for a dedicated storage system optimized for the particular application's workload. In MosaStore, \textit{Donor nodes} donate storage space to the system, as managed by a centralized \textit{metadata manager}. Each client on the network installs a \textit{system access iterface} library, giving them an interface with which to access the distributed storage space. The aspect of \textit{specialization} is similar to the \textit{flexiblility} design goal of Protea, where the underlying storage system is tailored for the custom API of the application. It might be interesting in future iterations of Protea to explore the possibility of extending it over a distributed network of storage servers or network-enabled hardware.
 
 Work has been done on designing heterogeneous storage systems to augment OS functionality. Kim\cite{Kim:2008:PNF:1450058.1450064} proposes a hybrid flash architecture that uses PRAM (phase-change ram) for storing file system metadata and regular NAND flash for user data storage. PRAM possesses fast byte access and does not require erasure before overwriting, making it more suitable for file system metadata which is frequently modified in small sizes. This architecture also extends the lifetime of the NAND flash devices.
+
+\section{Conclusion and Future Work}
+
+Protea offers a useful framework not only for thinking about and implementing storage systems but also for automated tree discovery. Due to the modular design of ProtoTrees and the simplicity of implementing new designs, one could use an evolutionary algorithm to generate trees that demonstrate desirable characteristics. For example, if a user wants a ProtoTree design that handles read-heavy workloads and utilizes an HDD and SSD, they could iterate through generations of random tree candidates and select for those that demonstrate the best read throughput. This inverts the normal process of storage system design, in which arduous human-driven design comes first and then evaluation. Instead, such an automated discovery framework opens up the possibility of machine-driven design and evaluation, where the human only needs to specify their goals.
+
+Given the well-defined tree structure of Protea, performance can be modeled for the overall system or specific subtrees. This would not only aid the ProtoTree designer in developing efficient ProtoTrees, but paired with automated tree discovery, Protea could automatically produce optimal ProtoTrees given certain parameter constraints.
+
+Ultimately Protea is to be implemented on FPGA devices that are optimized on the hardware level for Protea-specific systems. This would provide tremendous performance speedups, as the operating system could by bypassed entirely, replaced instead by a minimal system optimized specifically for the ProtoTree at hand. The bottleneck for the application would be pushed to the network and disk I/O.
 
 \bibliographystyle{acm}
 \bibliography{cs490report}
